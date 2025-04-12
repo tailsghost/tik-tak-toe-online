@@ -1,0 +1,6 @@
+@tik_tak_toe_server_HostAddress = http://localhost:5118
+
+GET {{tik_tak_toe_server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
