@@ -7,6 +7,8 @@ public class ApplicationContext : DbContext
 {
     public DbSet<Game> Games { get; set; }
 
+    public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options) { }
+
     public ApplicationContext()
     {
         Database.EnsureCreated();
