@@ -1,5 +1,3 @@
-
-
 using Microsoft.EntityFrameworkCore;
 using tik_tak_toe_server.Database.Context;
 using tik_tak_toe_server.Helpers;
