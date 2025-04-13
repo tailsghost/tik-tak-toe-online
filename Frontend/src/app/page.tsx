@@ -1,23 +1,10 @@
-"use client";
-
-import { useState } from "react";
-import { getGames } from "@/services/getGames";
-import { Game } from "@/interfaces/Game";
-import { Button } from "@/shared/ui/button";
+import { GamesList } from "@/features/games-list/server";
 
 export default function Home() {
-  const [games, setGames] = useState<Game[]>([]);
-
-  const LoadGamesHandler = async () => {
-      setGames(await getGames());
-      console.log("Список игр", games);
-  };
-
-  return (
-    <div>
-      <Button variant={"destructive"} onClick={LoadGamesHandler}>
-        Загрузить игры
-      </Button>
-    </div>
-  );
+ return (
+  <div className="flex flex-col gap-8 container mx-auto pt-[100px]">
+    <h1 className="text-4xl font-bold">Игры</h1>
+    <GamesList/>
+  </div>
+ )
 }

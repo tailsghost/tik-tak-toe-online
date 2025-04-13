@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using tik_tak_toe_server.Database.Context;
 using tik_tak_toe_server.Database.Entities;
+using tik_tak_toe_server.Dtos;
 
 namespace tik_tak_toe_server.Controllers
 {
@@ -16,81 +17,50 @@ namespace tik_tak_toe_server.Controllers
             _context = context;
         }
 
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Game>>> GetGames()
+        public IActionResult GetGames()
         {
-            return await _context.Games.ToListAsync();
+            var games = _context.Games
+                .Include(u => u.Players)
+                .Include(u => u.Winner)
+                .ToListAsync();
+            return Ok(games);
         }
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Game>> GetGame(Guid id)
+        [HttpGet("idle")]
+        public async Task<IActionResult> GetStatusGames()
         {
-            var game = await _context.Games.FindAsync(id);
+            var games = await _context.Games
+                .Where(w => w.Status.Equals(GameStatus.Idle))
+                .Include(u => u.Players)
+                .Include(u => u.Winner)
+                .ToListAsync();
 
-            if (game == null)
+            if (games == null)
+                return NotFound("No games found");
+
+
+
+            var dtos = new List<GameIdleDto>();
+
+            for (var i = 0; i < games.Count; i++)
             {
-                return NotFound();
-            }
-
-            return game;
-        }
-
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutGame(Guid id, Game game)
-        {
-            if (id != game.Id)
-            {
-                return BadRequest();
-            }
-
-            _context.Entry(game).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
-            {
-                if (!GameExists(id))
+                var game = games[i];
+                dtos.Add(new GameIdleDto
                 {
-                    return NotFound();
-                }
-                else
-                {
-                    throw;
-                }
+                    Id = game.Id,
+                    Creator = new UserDto
+                    {
+                        Id = game.Players[i].Id,
+                        Login = game.Players[i].Login,
+                        Rating = game.Players[i].Rating
+                    },
+                    Status = game.Status
+                });
             }
 
-            return NoContent();
-        }
-
-        [HttpPost]
-        public async Task<ActionResult<Game>> PostGame(Game game)
-        {
-            _context.Games.Add(game);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction("GetGame", new { id = game.Id }, game);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteGame(Guid id)
-        {
-            var game = await _context.Games.FindAsync(id);
-            if (game == null)
-            {
-                return NotFound();
-            }
-
-            _context.Games.Remove(game);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
-        }
-
-        private bool GameExists(Guid id)
-        {
-            return _context.Games.Any(e => e.Id == id);
+            return Ok(dtos);
         }
     }
 }
