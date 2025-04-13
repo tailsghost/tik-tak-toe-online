@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { getGames } from "@/services/getGames";
@@ -9,17 +9,15 @@ export default function Home() {
   const [games, setGames] = useState<Game[]>([]);
 
   const LoadGamesHandler = async () => {
-    getGames().then((data) => {
-      setGames(data);
+      setGames(await getGames());
       console.log("Список игр", games);
-    })
-    .catch((error) => console.log("Ошибка при загрузке игр:", error))
-  }
-
+  };
 
   return (
     <div>
-      <Button variant={"destructive"} onClick={LoadGamesHandler}>Загрузить игры</Button>
+      <Button variant={"destructive"} onClick={LoadGamesHandler}>
+        Загрузить игры
+      </Button>
     </div>
   );
 }
